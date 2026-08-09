@@ -1,0 +1,6 @@
+{
+  "name": "AI Power Job Portal",
+  "description": "AI-powered job portal with job matching, resume insights, applications management, and recruiter screening tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

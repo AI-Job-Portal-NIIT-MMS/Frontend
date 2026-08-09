@@ -1,0 +1,129 @@
+/* Post a Job Styling */
+.post-job-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.post-job-header {
+  margin-bottom: 8px;
+}
+
+.post-job-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-main);
+}
+
+.post-job-sub {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+.post-job-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 24px;
+}
+
+.post-form-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.post-form-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.post-card {
+  background-color: var(--color-bg-container);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.post-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin-bottom: 20px;
+}
+
+.post-card-title svg {
+  color: var(--color-primary);
+}
+
+.post-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.post-input, .post-select, .post-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: #f8fafc;
+  color: var(--color-text-main);
+  transition: all 0.2s ease;
+}
+
+.post-input:focus, .post-select:focus, .post-textarea:focus {
+  border-color: var(--color-primary);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(70, 72, 212, 0.1);
+}
+
+.ai-criteria-card {
+  background-color: #f5f7ff;
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+}
+
+.ai-criteria-desc {
+  font-size: 0.825rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.skills-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.active-skill-pill {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.active-skill-pill button {
+  color: #ffffff;
+  display: flex;
+}
+
+@media (max-width: 992px) {
+  .post-job-grid {
+    grid-template-columns: 1fr;
+  }
+}
