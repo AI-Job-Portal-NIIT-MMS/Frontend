@@ -6,3 +6,17 @@ coverage/
 *.log
 .env*
 !.env.example
+!.env.production
+
+.vercel
+
+# Backend microservices (deployed via Railway, not Vercel)
+ai-job-portal-backend-develop/
+
+# Misc
+src.zip
+src/scratch/
+server.js
+start-portal.js
+test_e2e.ps1
+test_production_integration.ps1

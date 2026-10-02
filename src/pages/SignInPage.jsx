@@ -4,16 +4,26 @@ import { useApp } from '../context/AppContext';
 import { Bot, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import '../styles/auth.css';
 export const SignInPage = () => {
-    const [email, setEmail] = useState('you@example.com');
-    const [password, setPassword] = useState('••••••••');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(true);
     const { login } = useApp();
     const navigate = useNavigate();
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        login(email);
-        navigate('/dashboard');
+
+    const handleSubmit = async (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!email || !password) return;
+        setLoading(true);
+        try {
+            await login(email, password);
+            navigate('/dashboard');
+        } catch (err) {
+            // Toast shown in login
+        } finally {
+            setLoading(false);
+        }
     };
     return (<div className="auth-page">
       <div className="auth-card-single">

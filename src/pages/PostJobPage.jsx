@@ -4,17 +4,19 @@ import { useApp } from '../context/AppContext';
 import { Sparkles, X, CheckCircle2 } from 'lucide-react';
 import '../styles/post-job.css';
 export const PostJobPage = () => {
-    const { addJob, addToast } = useApp();
+    const { addJob, addToast, userProfile } = useApp();
     const navigate = useNavigate();
     const [title, setTitle] = useState('');
-    const [company, setCompany] = useState('TechCorp Solutions');
-    const [location, setLocation] = useState('San Francisco, CA (Hybrid)');
+    const [company, setCompany] = useState('');
+    const [location, setLocation] = useState('');
     const [category, setCategory] = useState('Technology');
-    const [salaryMin, setSalaryMin] = useState('120k');
-    const [salaryMax, setSalaryMax] = useState('160k');
+    const [salaryMin, setSalaryMin] = useState('');
+    const [salaryMax, setSalaryMax] = useState('');
     const [description, setDescription] = useState('');
     const [skillInput, setSkillInput] = useState('');
-    const [skills, setSkills] = useState(['React', 'TypeScript', 'Node.js', 'Tailwind CSS']);
+    const [skills, setSkills] = useState([]);
+    const [loading, setLoading] = useState(false);
+
     const handleAddSkill = (e) => {
         if ('key' in e && e.key !== 'Enter')
             return;
@@ -27,37 +29,50 @@ export const PostJobPage = () => {
     const handleRemoveSkill = (skillToRemove) => {
         setSkills(skills.filter((s) => s !== skillToRemove));
     };
-    const handleSubmit = (e) => {
+
+    const parseNum = (val, fallback) => {
+        if (!val) return fallback;
+        const num = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+        if (isNaN(num)) return fallback;
+        return String(val).toLowerCase().includes('k') ? num * 1000 : num;
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!title || !description) {
-            addToast('Please fill out all required fields', 'error');
+            addToast('Please fill out the job title and description', 'error');
             return;
         }
-        addJob({
-            title,
-            company,
-            logo: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&h=100&fit=crop',
-            location,
-            type: 'Full-time',
-            category,
-            salary: `$${salaryMin} - $${salaryMax}`,
-            description,
-            matchScore: 95,
-            skills,
-            responsibilities: [
-                'Architect and maintain scalable user interfaces.',
-                'Collaborate closely with product designers and backend engineers.',
-                'Optimize application performance and load times.',
-            ],
-            requirements: [
-                '5+ years of software engineering experience.',
-                'Strong proficiency in modern JavaScript/TypeScript and frameworks.',
-            ],
-            experience: '5+ years',
-            postedDate: 'Just now',
-        });
-        addToast('Job post created successfully!', 'success');
-        navigate('/jobs');
+
+        const min = parseNum(salaryMin, 100000);
+        const max = parseNum(salaryMax, Math.max(min + 20000, 130000));
+
+        setLoading(true);
+        try {
+            await addJob({
+                title: title.trim(),
+                description: description.trim(),
+                requirements: 'Relevant industry experience, strong technical problem-solving capabilities.',
+                responsibilities: 'Build scalable systems, collaborate with cross-functional teams, deliver high quality results.',
+                benefits: 'Competitive compensation, Health & Dental, Flexible working hours, PTO',
+                categoryId: 52,
+                city: location.split(',')[0]?.trim() || 'San Francisco',
+                state: location.split(',')[1]?.trim() || 'CA',
+                country: 'United States',
+                minSalary: min,
+                maxSalary: max,
+                jobType: 'FULL_TIME',
+                workMode: location.toLowerCase().includes('remote') ? 'REMOTE' : (location.toLowerCase().includes('hybrid') ? 'HYBRID' : 'ONSITE'),
+                experienceLevel: 'MID_LEVEL',
+                openings: 1
+            });
+            addToast('Job post created and published successfully!', 'success');
+            navigate('/jobs');
+        } catch (err) {
+            addToast(err.message || 'Failed to publish job', 'error');
+        } finally {
+            setLoading(false);
+        }
     };
     return (<div className="post-job-page">
       <div className="post-job-header">

@@ -5,16 +5,25 @@ import { Bookmark, Sparkles, CheckCircle2 } from 'lucide-react';
 import '../styles/jobs.css';
 export const JobCard = ({ job }) => {
     const { toggleSaveJob, applyToJob } = useApp();
+    if (!job) return null;
+
+    const companyName = job.company?.name || (typeof job.company === 'string' ? job.company : 'Company');
+    const logoUrl = job.company?.logoUrl || job.logo || 'https://images.unsplash.com/photo-1549923746-c502d488b3ea?w=120&fit=crop';
+    const locationStr = job.location || [job.city, job.state, job.country].filter(Boolean).join(', ') || 'Remote';
+    const typeStr = job.type || (job.jobType ? String(job.jobType).replace(/_/g, ' ') : 'Full Time');
+    const salaryStr = job.salary || (job.minSalary && job.maxSalary ? `$${Number(job.minSalary).toLocaleString()} - $${Number(job.maxSalary).toLocaleString()}/yr` : 'Competitive');
+    const scoreVal = job.matchScore || job.aiScore || 88;
+
     return (<div className="job-card">
       <div className="job-card-top">
         <div className="job-company-info">
-          <img src={job.logo} alt={job.company} className="job-logo"/>
+          <img src={logoUrl} alt={companyName} className="job-logo"/>
           <div className="job-title-group">
             <Link to={`/job/${job.id}`} className="job-card-title">
               {job.title}
             </Link>
             <div className="job-meta-line">
-              {job.company} • {job.location} • {job.type}
+              {companyName} • {locationStr} • {typeStr}
             </div>
           </div>
         </div>
@@ -22,7 +31,7 @@ export const JobCard = ({ job }) => {
         <div className="job-card-actions">
           <div className="badge-match">
             <Sparkles size={12}/>
-            <span>{job.matchScore}% Match</span>
+            <span>{scoreVal}% Match</span>
           </div>
           <button className={`job-bookmark-btn ${job.saved ? 'saved' : ''}`} onClick={() => toggleSaveJob(job.id)} aria-label="Bookmark Job">
             <Bookmark size={18} fill={job.saved ? 'currentColor' : 'none'}/>

@@ -6,9 +6,17 @@ import { motion } from 'motion/react';
 import { FileText, CheckCircle2, Bookmark, Sparkles, TrendingUp, Rocket, } from 'lucide-react';
 import '../styles/dashboard.css';
 export const DashboardPage = () => {
-    const { jobs } = useApp();
+    const { jobs, applications, interviews } = useApp();
     const navigate = useNavigate();
     const titleText = "Find Your Dream Job With AI Power";
+
+    const applicationsCount = applications?.length || 0;
+    const interviewsCount = interviews?.length || 0;
+    const savedJobsCount = (jobs || []).filter(j => j.saved).length;
+    const avgMatchScore = (jobs && jobs.length > 0)
+      ? Math.round(jobs.reduce((acc, j) => acc + (j.matchScore || 85), 0) / jobs.length)
+      : 0;
+
     return (<div className="dashboard-grid">
       {/* Hero Banner Card */}
       <motion.div className="dash-hero-card" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -48,26 +56,26 @@ export const DashboardPage = () => {
           </div>
           <div className="stat-info">
             <motion.span className="stat-number" initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }}>
-              24
+              {applicationsCount}
             </motion.span>
             <span className="stat-label">Applications</span>
             <span className="stat-growth">
-              <TrendingUp size={12}/> 12% this month
+              <TrendingUp size={12}/> {applicationsCount > 0 ? `${applicationsCount} active` : 'Active tracking'}
             </span>
           </div>
         </motion.div>
 
-        <motion.div className="stat-card" onClick={() => navigate('/applications')} style={{ cursor: 'pointer' }} whileHover={{ y: -3, transition: { duration: 0.2 } }}>
+        <motion.div className="stat-card" onClick={() => navigate('/interviews')} style={{ cursor: 'pointer' }} whileHover={{ y: -3, transition: { duration: 0.2 } }}>
           <div className="stat-icon-wrapper purple">
             <CheckCircle2 size={22}/>
           </div>
           <div className="stat-info">
             <motion.span className="stat-number" initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }}>
-              8
+              {interviewsCount}
             </motion.span>
             <span className="stat-label">Interviews</span>
             <span className="stat-growth">
-              <TrendingUp size={12}/> 5% this month
+              <TrendingUp size={12}/> {interviewsCount > 0 ? `${interviewsCount} scheduled` : 'Ready to interview'}
             </span>
           </div>
         </motion.div>
@@ -78,11 +86,11 @@ export const DashboardPage = () => {
           </div>
           <div className="stat-info">
             <motion.span className="stat-number" initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }}>
-              16
+              {savedJobsCount}
             </motion.span>
             <span className="stat-label">Saved Jobs</span>
             <span className="stat-growth">
-              <TrendingUp size={12}/> 8% this month
+              <TrendingUp size={12}/> {savedJobsCount > 0 ? `${savedJobsCount} saved` : 'Bookmarked'}
             </span>
           </div>
         </motion.div>
@@ -93,11 +101,11 @@ export const DashboardPage = () => {
           </div>
           <div className="stat-info">
             <motion.span className="stat-number" initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }}>
-              92%
+              {avgMatchScore > 0 ? `${avgMatchScore}%` : 'N/A'}
             </motion.span>
             <span className="stat-label">AI Match Score</span>
             <span className="stat-growth purple-text">
-              Excellent Match
+              {avgMatchScore >= 80 ? 'Excellent Match' : 'Calculated by AI'}
             </span>
           </div>
         </motion.div>

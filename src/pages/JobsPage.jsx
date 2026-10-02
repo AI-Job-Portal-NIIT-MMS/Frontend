@@ -16,12 +16,16 @@ export const JobsPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const categories = ['All Jobs', 'Technology', 'Design', 'Marketing', 'Data Science', 'Sales'];
     const filteredJobs = jobs.filter((job) => {
+        const companyStr = (job.company?.name || job.company || '').toLowerCase();
+        const titleStr = (job.title || '').toLowerCase();
+        const q = searchQuery.toLowerCase();
         const matchesQuery = !searchQuery ||
-            job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (job.skills || []).some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
-        const matchesLocation = !locationQuery || job.location.toLowerCase().includes(locationQuery.toLowerCase());
-        const matchesCategory = activeCategory === 'All Jobs' || job.category === activeCategory;
+            titleStr.includes(q) ||
+            companyStr.includes(q) ||
+            (job.skills || []).some((s) => (typeof s === 'string' ? s : s.name || s.skillName || '').toLowerCase().includes(q));
+        const matchesLocation = !locationQuery || (job.location || '').toLowerCase().includes(locationQuery.toLowerCase());
+        const jobCat = job.category?.name || job.category || 'General';
+        const matchesCategory = activeCategory === 'All Jobs' || jobCat === activeCategory;
         return matchesQuery && matchesLocation && matchesCategory;
     });
     return (<div className="jobs-page">

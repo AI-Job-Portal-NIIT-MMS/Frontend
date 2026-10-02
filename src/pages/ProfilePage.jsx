@@ -3,13 +3,28 @@ import { useApp } from '../context/AppContext';
 import { Camera, MapPin, FileCheck, Edit2, Sparkles, } from 'lucide-react';
 import '../styles/profile.css';
 export const ProfilePage = () => {
-    const { userProfile, candidateSkills, addSkill, addToast } = useApp();
+    const { userProfile, applications, interviews, jobs, addSkill, addToast } = useApp();
     const [newSkillInput, setNewSkillInput] = useState('');
     const [showSkillInput, setShowSkillInput] = useState(false);
+
+    const applicationsCount = applications?.length || 0;
+    const interviewsCount = interviews?.length || 0;
+    const savedJobsCount = (jobs || []).filter(j => j.saved).length;
+    const avgMatchScore = (jobs && jobs.length > 0)
+      ? Math.round(jobs.reduce((acc, j) => acc + (j.matchScore || 85), 0) / jobs.length)
+      : 0;
+
+    const displayName = userProfile?.fullName || userProfile?.name || 'User Profile';
+    const displayTitle = userProfile?.jobTitle || userProfile?.title || (userProfile?.role === 'ROLE_EMPLOYER' ? 'Hiring Manager' : 'Software Professional');
+    const displayAvatar = userProfile?.profileImage || userProfile?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop';
+    const displayLocation = userProfile?.location || 'Remote';
+    const displayBio = userProfile?.bio || 'Professional actively building and exploring career opportunities.';
+    const skillsList = Array.isArray(userProfile?.skills) ? userProfile.skills : [];
+
     const handleAddSkillSubmit = (e) => {
         e.preventDefault();
         if (newSkillInput.trim()) {
-            addSkill(newSkillInput.trim(), 88);
+            addSkill(newSkillInput.trim());
             setNewSkillInput('');
             setShowSkillInput(false);
             addToast(`Added skill "${newSkillInput.trim()}"`, 'success');
@@ -22,20 +37,20 @@ export const ProfilePage = () => {
         <div className="profile-header-row">
           <div className="profile-user-group">
             <div className="profile-avatar-wrapper">
-              <img src={userProfile.avatar} alt={userProfile.name} className="profile-avatar-img"/>
+              <img src={displayAvatar} alt={displayName} className="profile-avatar-img"/>
               <button className="profile-camera-btn" onClick={() => addToast('Upload photo triggered', 'info')} title="Change Photo">
                 <Camera size={14}/>
               </button>
             </div>
 
             <div>
-              <div className="profile-user-name">{userProfile.name}</div>
-              <div className="profile-user-role">{userProfile.title}</div>
+              <div className="profile-user-name">{displayName}</div>
+              <div className="profile-user-role">{displayTitle}</div>
 
               <div className="profile-user-location">
                 <span>
                   <MapPin size={14} style={{ display: 'inline', marginRight: 4 }}/>
-                  {userProfile.location}
+                  {displayLocation}
                 </span>
                 <span>•</span>
                 <span className="open-to-work-badge">Open to work</span>
@@ -52,19 +67,21 @@ export const ProfilePage = () => {
         {/* Profile Stats Grid */}
         <div className="profile-stats-grid">
           <div className="profile-stat-item">
-            <span className="profile-stat-val">24</span>
+            <span className="profile-stat-val">{applicationsCount}</span>
             <span className="profile-stat-lbl">Applications</span>
           </div>
           <div className="profile-stat-item">
-            <span className="profile-stat-val">8</span>
+            <span className="profile-stat-val">{interviewsCount}</span>
             <span className="profile-stat-lbl">Interviews</span>
           </div>
           <div className="profile-stat-item">
-            <span className="profile-stat-val" style={{ color: 'var(--color-primary)' }}>92%</span>
+            <span className="profile-stat-val" style={{ color: 'var(--color-primary)' }}>
+              {avgMatchScore > 0 ? `${avgMatchScore}%` : 'N/A'}
+            </span>
             <span className="profile-stat-lbl">AI Match Score</span>
           </div>
           <div className="profile-stat-item">
-            <span className="profile-stat-val">16</span>
+            <span className="profile-stat-val">{savedJobsCount}</span>
             <span className="profile-stat-lbl">Saved Jobs</span>
           </div>
         </div>
@@ -73,7 +90,7 @@ export const ProfilePage = () => {
         <div>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '8px' }}>About Me</h3>
           <p style={{ color: 'var(--color-text-muted)', lineHeight: '1.6', fontSize: '0.925rem' }}>
-            {userProfile.bio}
+            {displayBio}
           </p>
         </div>
 
@@ -107,9 +124,14 @@ export const ProfilePage = () => {
             </form>)}
 
           <div className="job-skills-list">
-            {(candidateSkills || []).map((sk) => (<span key={sk.name} className="tag-skill" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
-                {sk.name} ({sk.percentage}%)
-              </span>))}
+            {(skillsList.length > 0 ? skillsList : candidateSkills || []).map((sk, idx) => {
+              const skillName = typeof sk === 'string' ? sk : (sk.name || sk.skillName || `Skill #${idx + 1}`);
+              return (
+                <span key={skillName + idx} className="tag-skill" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
+                  {skillName}
+                </span>
+              );
+            })}
           </div>
         </div>
 

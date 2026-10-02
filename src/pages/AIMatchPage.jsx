@@ -6,7 +6,22 @@ import { Sparkles, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
 import '../styles/ai-match.css';
 export const AIMatchPage = () => {
-    const { jobs, candidateSkills } = useApp();
+    const { jobs, candidateSkills, userProfile } = useApp();
+
+    const skillsArray = (userProfile?.skills && userProfile.skills.length > 0)
+      ? userProfile.skills
+      : (candidateSkills && candidateSkills.length > 0 ? candidateSkills : ['React', 'JavaScript', 'Spring Boot', 'SQL']);
+
+    const dynamicScore = (jobs && jobs.length > 0)
+      ? Math.round(jobs.reduce((acc, j) => acc + (j.matchScore || 88), 0) / jobs.length)
+      : 88;
+
+    const formattedSkills = skillsArray.map((s, i) => {
+      const name = typeof s === 'string' ? s : (s.name || s.skillName || `Skill #${i + 1}`);
+      const percentage = typeof s === 'object' && s.percentage ? s.percentage : Math.max(70, 95 - (i * 6));
+      return { name, percentage };
+    });
+
     return (<div className="ai-match-page">
       <motion.div className="ai-match-header" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <motion.h1 className="ai-match-title" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }}>
@@ -20,10 +35,10 @@ export const AIMatchPage = () => {
       <div className="ai-match-grid">
         {/* Overall Match Gauge */}
         <motion.div className="gauge-card" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.5 }}>
-          <CircularGauge score={92} size={220} strokeWidth={18}/>
+          <CircularGauge score={dynamicScore} size={220} strokeWidth={18}/>
           <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: '700', fontSize: '0.9rem' }}>
             <TrendingUp size={16}/>
-            <span>Top 5% candidate match rate</span>
+            <span>{dynamicScore >= 80 ? 'Top candidate match rate' : 'Calculated profile match rate'}</span>
           </div>
         </motion.div>
 
@@ -31,7 +46,7 @@ export const AIMatchPage = () => {
         <motion.div className="skills-match-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.5 }}>
           <h2 className="skills-card-title">Top Matching Skills</h2>
           <div className="skills-list-container">
-            {(candidateSkills || []).map((skill, index) => (<motion.div key={skill.name} className="skill-bar-item" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 + index * 0.08, duration: 0.3 }}>
+            {formattedSkills.map((skill, index) => (<motion.div key={skill.name} className="skill-bar-item" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 + index * 0.08, duration: 0.3 }}>
                 <div className="skill-bar-header">
                   <span>{skill.name}</span>
                   <span className="skill-bar-percentage">{skill.percentage}% Match</span>

@@ -8,7 +8,35 @@ export const JobDetailPage = () => {
     const navigate = useNavigate();
     const { jobs, toggleSaveJob, applyToJob } = useApp();
     const [activeTab, setActiveTab] = useState('overview');
-    const job = jobs.find((j) => j.id === id) || jobs[0];
+    const job = jobs.find((j) => String(j.id) === String(id)) || jobs[0];
+
+    if (!job) {
+      return (
+        <div className="job-detail-page">
+          <div className="back-link-bar">
+            <button className="back-btn" onClick={() => navigate(-1)}>
+              <ArrowLeft size={18}/>
+              <span>Back to Jobs</span>
+            </button>
+          </div>
+          <div className="card-container" style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: 'var(--color-surface)', borderRadius: 'var(--radius-lg)' }}>
+            <h2>Job Not Found</h2>
+            <p style={{ color: 'var(--color-text-muted)', marginTop: '8px' }}>The requested job listing is unavailable or has expired.</p>
+            <button className="btn-primary" style={{ marginTop: '20px' }} onClick={() => navigate('/jobs')}>
+              Browse All Jobs
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    const companyName = job.company?.name || (typeof job.company === 'string' ? job.company : 'Company');
+    const logoUrl = job.company?.logoUrl || job.logo || 'https://images.unsplash.com/photo-1549923746-c502d488b3ea?w=120&fit=crop';
+    const locationStr = job.location || [job.city, job.state, job.country].filter(Boolean).join(', ') || 'Remote';
+    const typeStr = job.type || (job.jobType ? String(job.jobType).replace(/_/g, ' ') : 'Full Time');
+    const salaryStr = job.salary || (job.minSalary && job.maxSalary ? `$${Number(job.minSalary).toLocaleString()} - $${Number(job.maxSalary).toLocaleString()}/yr` : 'Competitive');
+    const scoreVal = job.matchScore || job.aiScore || 88;
+
     return (<div className="job-detail-page">
       <div className="back-link-bar">
         <button className="back-btn" onClick={() => navigate(-1)}>
@@ -20,22 +48,22 @@ export const JobDetailPage = () => {
       {/* Header Banner Card */}
       <div className="job-detail-header-card">
         <div className="job-detail-main-info">
-          <img src={job.logo} alt={job.company} className="job-detail-logo"/>
+          <img src={logoUrl} alt={companyName} className="job-detail-logo"/>
           <div style={{ flex: 1 }}>
             <h1 className="job-detail-heading">{job.title}</h1>
             <div className="job-detail-sub">
-              <span style={{ fontWeight: 700, color: 'var(--color-text-main)' }}>{job.company}</span>
+              <span style={{ fontWeight: 700, color: 'var(--color-text-main)' }}>{companyName}</span>
               <span>•</span>
-              <span>{job.location}</span>
+              <span>{locationStr}</span>
               <span>•</span>
-              <span>{job.type}</span>
+              <span>{typeStr}</span>
             </div>
 
             <div className="job-detail-salary-row">
-              <span className="job-detail-salary-amount">{job.salary}</span>
+              <span className="job-detail-salary-amount">{salaryStr}</span>
               <div className="badge-match">
                 <Sparkles size={12}/>
-                <span>{job.matchScore}% AI Match</span>
+                <span>{scoreVal}% AI Match</span>
               </div>
             </div>
           </div>

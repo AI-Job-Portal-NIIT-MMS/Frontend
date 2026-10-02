@@ -2,49 +2,58 @@ import { apiRequest } from './apiClient';
 
 export const authService = {
   /**
-   * User Sign In
+   * User Sign In (Spring Boot AuthController -> /api/auth/login)
    */
   async login(credentials) {
-    const fallbackResponse = {
-      token: 'mock-jwt-token-' + Date.now(),
-      user: {
-        email: credentials.email || 'alex.johnson@example.com',
-        name: credentials.email ? credentials.email.split('@')[0] : 'Alex Johnson',
-        role: credentials.role || 'Job Seeker',
-      },
-    };
-
-    const res = await apiRequest('/auth/login', {
+    const res = await apiRequest('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify(credentials),
-    }, fallbackResponse);
+      body: JSON.stringify({
+        email: credentials.email,
+        password: credentials.password,
+      }),
+    });
 
-    if (res.token) {
-      localStorage.setItem('auth_token', res.token);
+    const token = res.jwt || res.jwtToken || res.token;
+    if (token) {
+      localStorage.setItem('auth_token', token);
+    }
+    if (res.user) {
+      if (res.user.id) localStorage.setItem('user_id', res.user.id);
+      if (res.user.email) localStorage.setItem('user_email', res.user.email);
+      if (res.user.role) localStorage.setItem('user_role', res.user.role);
     }
     return res;
   },
 
-  /**
-   * User Registration
-   */
   async register(userData) {
-    const fallbackResponse = {
-      token: 'mock-jwt-token-' + Date.now(),
-      user: {
-        name: userData.fullName || 'New User',
-        email: userData.email,
-        role: userData.role || 'Job Seeker',
-      },
+    let role = 'ROLE_JOB_SEEKER';
+    if (userData.role === 'Employer' || userData.role === 'ROLE_EMPLOYER' || userData.role === 'HR Manager') {
+      role = 'ROLE_EMPLOYER';
+    } else if (userData.role === 'Admin' || userData.role === 'ROLE_ADMIN') {
+      role = 'ROLE_ADMIN';
+    }
+
+    const signupPayload = {
+      fullName: (userData.fullName || userData.name || 'New User').trim(),
+      email: (userData.email || '').trim().toLowerCase(),
+      password: userData.password,
+      role: role,
+      phone: userData.phone || ''
     };
 
-    const res = await apiRequest('/auth/register', {
+    const res = await apiRequest('/api/auth/signup', {
       method: 'POST',
-      body: JSON.stringify(userData),
-    }, fallbackResponse);
+      body: JSON.stringify(signupPayload),
+    });
 
-    if (res.token) {
-      localStorage.setItem('auth_token', res.token);
+    const token = res.jwt || res.jwtToken || res.token;
+    if (token) {
+      localStorage.setItem('auth_token', token);
+    }
+    if (res.user) {
+      if (res.user.id) localStorage.setItem('user_id', res.user.id);
+      if (res.user.email) localStorage.setItem('user_email', res.user.email);
+      if (res.user.role) localStorage.setItem('user_role', res.user.role);
     }
     return res;
   },
@@ -54,6 +63,9 @@ export const authService = {
    */
   async logout() {
     localStorage.removeItem('auth_token');
-    return apiRequest('/auth/logout', { method: 'POST' }, { success: true });
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_email');
+    localStorage.removeItem('user_role');
+    return { success: true };
   },
 };

@@ -1,0 +1,9 @@
+node_modules
+ai-job-portal-backend-develop
+*.zip
+*.ps1
+server.js
+start-portal.js
+.git
+.idea
+uploads

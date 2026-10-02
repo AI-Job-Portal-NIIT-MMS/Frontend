@@ -1,62 +1,81 @@
 /**
- * Base API Client Configuration
- * Supports environment variable base URL resolution and fallback mock execution.
+ * Base API Client Configuration directly targeting Spring Boot Microservices
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA !== 'false'; // Default to mock data if true or unconfigured
-
-/**
- * Helper to simulate network latency for hardcoded/mock responses
- */
-export const simulateNetworkDelay = (ms = 300) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+const MICROSERVICE_URLS = {
+  auth: import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:5001',
+  user: import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:5001',
+  users: import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:5001',
+  companies: import.meta.env.VITE_COMPANY_SERVICE_URL || 'http://localhost:5002',
+  jobs: import.meta.env.VITE_JOB_SERVICE_URL || 'http://localhost:5003',
+  'job-categories': import.meta.env.VITE_JOB_SERVICE_URL || 'http://localhost:5003',
+  'job-skills': import.meta.env.VITE_JOB_SERVICE_URL || 'http://localhost:5003',
+  resumes: import.meta.env.VITE_RESUME_SERVICE_URL || 'http://localhost:5004',
+  applications: import.meta.env.VITE_APPLICATION_SERVICE_URL || 'http://localhost:5005',
+  candidates: import.meta.env.VITE_APPLICATION_SERVICE_URL || 'http://localhost:5005',
+  interviews: import.meta.env.VITE_INTERVIEW_SERVICE_URL || 'http://localhost:5006',
+  notifications: import.meta.env.VITE_NOTIFICATION_SERVICE_URL || 'http://localhost:5007',
 };
 
 /**
- * Core request wrapper
- * @param {string} endpoint - API relative path (e.g. '/jobs')
- * @param {object} options - Fetch options (method, body, headers, etc.)
- * @param {any} mockFallback - Hardcoded fallback data to return if mock mode is on or API fails
+ * Resolve target Spring Boot microservice base URL according to endpoint prefix
  */
-export async function apiRequest(endpoint, options = {}, mockFallback = null) {
-  // If mock mode is explicitly active, return hardcoded mock data with simulated delay
-  if (USE_MOCK_DATA && mockFallback !== null) {
-    await simulateNetworkDelay(250);
-    return mockFallback;
-  }
-
-  try {
-    const token = localStorage.getItem('auth_token');
-    const defaultHeaders = {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    const config = {
-      ...options,
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
-    };
-
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `API Request failed with status ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (err) {
-    console.warn(`[API Client] Network request to ${endpoint} failed. Using mock fallback if available.`, err.message);
-    if (mockFallback !== null) {
-      await simulateNetworkDelay(200);
-      return mockFallback;
-    }
-    throw err;
-  }
+function getBaseUrlForEndpoint(endpoint) {
+  const cleanEndpoint = endpoint.replace(/^\/api\//, '').replace(/^\//, '');
+  const firstSegment = cleanEndpoint.split('/')[0];
+  return MICROSERVICE_URLS[firstSegment] || import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:5001';
 }
 
-export { API_BASE_URL, USE_MOCK_DATA };
+/**
+ * Core request wrapper connecting directly to Spring Boot backend microservices
+ * @param {string} endpoint - API relative path (e.g. '/api/jobs')
+ * @param {object} options - Fetch options (method, body, headers, etc.)
+ */
+export async function apiRequest(endpoint, options = {}) {
+  const token = localStorage.getItem('auth_token');
+  const userEmail = localStorage.getItem('user_email');
+  const userId = localStorage.getItem('user_id');
+
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(userEmail ? { 'X-User-Email': userEmail } : {}),
+    ...(userId ? { 'X-User-Id': userId } : {}),
+  };
+
+  const config = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers,
+    },
+  };
+
+  const baseUrl = getBaseUrlForEndpoint(endpoint);
+  const fullUrl = `${baseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+
+  const response = await fetch(fullUrl, config);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    let errMsg = errorData.message || errorData.error;
+
+    if (endpoint.includes('/auth/signup')) {
+      if (response.status === 500 || (errMsg && errMsg.toLowerCase().includes('already exists'))) {
+        errMsg = 'This email address is already registered. Please log in or use a different email.';
+      } else if (response.status === 400) {
+        errMsg = errorData.message || 'Please make sure all fields are valid.';
+      }
+    } else if (endpoint.includes('/auth/login')) {
+      if (response.status === 401 || response.status === 500 || response.status === 400) {
+        errMsg = errorData.message || 'Invalid email or password. Please check your credentials.';
+      }
+    }
+
+    throw new Error(errMsg || `Spring Boot Service at ${fullUrl} responded with status ${response.status}`);
+  }
+
+  return await response.json();
+}
+
+export { MICROSERVICE_URLS };
