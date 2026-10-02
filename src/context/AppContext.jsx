@@ -20,14 +20,19 @@ export const AppProvider = ({ children }) => {
     const [applications, setApplications] = useState([]);
     const [candidates, setCandidates] = useState([]);
     const [interviews, setInterviews] = useState([]);
-    const [userProfile, setUserProfile] = useState({
-      name: '',
-      email: '',
-      title: '',
-      location: '',
-      skills: [],
-      stats: { applications: 0, interviews: 0, savedJobs: 0 }
-    });
+const DEFAULT_USER_PROFILE = {
+  name: 'User',
+  fullName: 'User',
+  email: '',
+  title: 'Software Professional',
+  location: 'Remote',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop',
+  profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop',
+  skills: [],
+  stats: { applications: 0, interviews: 0, savedJobs: 0 }
+};
+
+    const [userProfile, setUserProfile] = useState(DEFAULT_USER_PROFILE);
     const [theme, setTheme] = useState('light');
     const [toasts, setToasts] = useState([]);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -265,7 +270,7 @@ export const AppProvider = ({ children }) => {
             console.warn('Logout API warning:', err);
         } finally {
             setIsAuthenticated(false);
-            setUserProfile(null);
+            setUserProfile(DEFAULT_USER_PROFILE);
             setJobs([]);
             setApplications([]);
             addToast('Logged out successfully', 'info');

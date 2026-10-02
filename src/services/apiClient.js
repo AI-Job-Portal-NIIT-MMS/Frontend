@@ -3,18 +3,18 @@
  */
 
 const MICROSERVICE_URLS = {
-  auth: import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:5001',
-  user: import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:5001',
-  users: import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:5001',
-  companies: import.meta.env.VITE_COMPANY_SERVICE_URL || 'http://localhost:5002',
-  jobs: import.meta.env.VITE_JOB_SERVICE_URL || 'http://localhost:5003',
-  'job-categories': import.meta.env.VITE_JOB_SERVICE_URL || 'http://localhost:5003',
-  'job-skills': import.meta.env.VITE_JOB_SERVICE_URL || 'http://localhost:5003',
-  resumes: import.meta.env.VITE_RESUME_SERVICE_URL || 'http://localhost:5004',
-  applications: import.meta.env.VITE_APPLICATION_SERVICE_URL || 'http://localhost:5005',
-  candidates: import.meta.env.VITE_APPLICATION_SERVICE_URL || 'http://localhost:5005',
-  interviews: import.meta.env.VITE_INTERVIEW_SERVICE_URL || 'http://localhost:5006',
-  notifications: import.meta.env.VITE_NOTIFICATION_SERVICE_URL || 'http://localhost:5007',
+  auth: import.meta.env.VITE_USER_SERVICE_URL || 'https://user-service-production-8266.up.railway.app',
+  user: import.meta.env.VITE_USER_SERVICE_URL || 'https://user-service-production-8266.up.railway.app',
+  users: import.meta.env.VITE_USER_SERVICE_URL || 'https://user-service-production-8266.up.railway.app',
+  companies: import.meta.env.VITE_COMPANY_SERVICE_URL || 'https://company-service-production-9078.up.railway.app',
+  jobs: import.meta.env.VITE_JOB_SERVICE_URL || 'https://job-service-production-03a8.up.railway.app',
+  'job-categories': import.meta.env.VITE_JOB_SERVICE_URL || 'https://job-service-production-03a8.up.railway.app',
+  'job-skills': import.meta.env.VITE_JOB_SERVICE_URL || 'https://job-service-production-03a8.up.railway.app',
+  resumes: import.meta.env.VITE_RESUME_SERVICE_URL || 'https://application-service-production-6d6e.up.railway.app',
+  applications: import.meta.env.VITE_APPLICATION_SERVICE_URL || 'https://application-service-production-6d6e.up.railway.app',
+  candidates: import.meta.env.VITE_APPLICATION_SERVICE_URL || 'https://application-service-production-6d6e.up.railway.app',
+  interviews: import.meta.env.VITE_INTERVIEW_SERVICE_URL || 'https://application-service-production-6d6e.up.railway.app',
+  notifications: import.meta.env.VITE_NOTIFICATION_SERVICE_URL || 'https://application-service-production-6d6e.up.railway.app',
 };
 
 /**
@@ -23,7 +23,7 @@ const MICROSERVICE_URLS = {
 function getBaseUrlForEndpoint(endpoint) {
   const cleanEndpoint = endpoint.replace(/^\/api\//, '').replace(/^\//, '');
   const firstSegment = cleanEndpoint.split('/')[0];
-  return MICROSERVICE_URLS[firstSegment] || import.meta.env.VITE_USER_SERVICE_URL || 'http://localhost:5001';
+  return MICROSERVICE_URLS[firstSegment] || import.meta.env.VITE_USER_SERVICE_URL || 'https://user-service-production-8266.up.railway.app';
 }
 
 /**

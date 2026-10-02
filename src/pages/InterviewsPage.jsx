@@ -4,7 +4,8 @@ import { Calendar as CalendarIcon, Video, Sparkles, MessageSquare, Plus, } from 
 import '../styles/interviews.css';
 export const InterviewsPage = () => {
     const { interviews, addToast } = useApp();
-    const [selectedInterview, setSelectedInterview] = useState(interviews[0]);
+    const [selectedInterview, setSelectedInterview] = useState(null);
+    const currentInterview = selectedInterview || (interviews && interviews[0]) || null;
     return (<div className="interviews-page">
       <div className="interviews-header-row">
         <div>
@@ -31,7 +32,7 @@ export const InterviewsPage = () => {
 
           {(interviews || []).map((item) => (<div key={item.id} className="interview-card-item" onClick={() => setSelectedInterview(item)} style={{
                 cursor: 'pointer',
-                borderColor: selectedInterview?.id === item.id ? 'var(--color-primary)' : 'var(--color-border)',
+                borderColor: currentInterview?.id === item.id ? 'var(--color-primary)' : 'var(--color-border)',
             }}>
               <div className="time-box">
                 <span className="time-val">{item.time}</span>
@@ -74,17 +75,21 @@ export const InterviewsPage = () => {
         </div>
 
         {/* Right Column Candidate Spotlight Card */}
-        {selectedInterview && (<div className="candidate-upcoming-card">
+        {currentInterview && (<div className="candidate-upcoming-card">
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-text-main)' }}>
               Interview Candidate Spotlight
             </h3>
 
             <div className="cand-profile-row">
-              <img src={selectedInterview.candidateAvatar || selectedInterview.avatar} alt={selectedInterview.candidateName} className="cand-avatar"/>
+              <img
+                src={currentInterview.candidateAvatar || currentInterview.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop'}
+                alt={currentInterview.candidateName || 'Candidate'}
+                className="cand-avatar"
+              />
               <div>
-                <h4 style={{ fontSize: '1.2rem', fontWeight: 800 }}>{selectedInterview.candidateName}</h4>
+                <h4 style={{ fontSize: '1.2rem', fontWeight: 800 }}>{currentInterview.candidateName}</h4>
                 <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                  Applying for {selectedInterview.jobTitle || selectedInterview.roleTitle}
+                  Applying for {currentInterview.jobTitle || currentInterview.roleTitle}
                 </p>
               </div>
             </div>
@@ -92,7 +97,7 @@ export const InterviewsPage = () => {
             <div>
               <div style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '8px' }}>Round & Type</div>
               <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
-                {selectedInterview.stage || selectedInterview.type} ({selectedInterview.duration})
+                {currentInterview.stage || currentInterview.type} ({currentInterview.duration})
               </div>
             </div>
 

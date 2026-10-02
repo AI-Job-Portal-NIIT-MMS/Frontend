@@ -47,9 +47,13 @@ export const Topbar = ({ onMenuToggle }) => {
 
         {/* User Profile */}
         <div className="topbar-user" onClick={() => setShowDropdown(!showDropdown)} style={{ position: 'relative' }}>
-          <img src={userProfile.avatar} alt={userProfile.name} className="topbar-avatar"/>
+          <img
+            src={userProfile?.avatar || userProfile?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop'}
+            alt={userProfile?.name || 'User'}
+            className="topbar-avatar"
+          />
           <div className="topbar-user-info">
-            <span className="topbar-user-name">{userProfile.name}</span>
+            <span className="topbar-user-name">{userProfile?.name || userProfile?.fullName || 'User'}</span>
             <span className="topbar-user-role">{role}</span>
           </div>
           <ChevronDown size={14} color="#64748b"/>
